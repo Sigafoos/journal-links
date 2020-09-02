@@ -1,5 +1,3 @@
-// TODO:
-// - figure out the damn scoping so I don't have to do game.JournalLink instead of this
 export class JournalLink {
     re = /@(\w+)\[(\w+)\]/g;
 
@@ -11,14 +9,22 @@ export class JournalLink {
     };
 
     updateJournalEntry({ data }) {
-        game.JournalLink.update(data, 'JournalEntry');
+        this.update(data, 'JournalEntry', data.content);
+    }
+
+    updateActor({ data }) {
+        this.update(data, 'Actor', data.data.details.biography.value);
+    }
+
+    updateItem({ data }) {
+        this.update(data, 'Item', data.data.description.value);
     }
 
     // TODO is the lack of async/await here going to bite me?
-    update(data, entityType) {
+    update(data, entityType, content) {
         console.log('journal-links | updating ' + entityType + ' ' + data.name);
 
-        let references = game.JournalLink.references(data.content);
+        let references = this.references(content);
         let existing = (data.flags['journal-links'] && data.flags['journal-links']['references']) || {};
 
         let updated = {};
@@ -35,7 +41,7 @@ export class JournalLink {
             if (existingOfType.includes(reference.id))
                 continue;
 
-            let referenced = game[game.JournalLink.entityMap[reference.type]].get(reference.id);
+            let referenced = game[this.entityMap[reference.type]].get(reference.id);
             let links = referenced.getFlag('journal-links', 'referencedBy') || {};
             let linksOfType = links[entityType] || [];
             linksOfType.push(data._id);
@@ -47,7 +53,7 @@ export class JournalLink {
         for (const [type, values] of Object.entries(existing)) {
             let current = updated[type];
             for (let outdated of values.filter(v => !current.includes(v))) {
-                let entity = game[game.JournalLink.entityMap[type]].get(outdated);
+                let entity = game[this.entityMap[type]].get(outdated);
 
                 let links = entity.getFlag('journal-links', 'referencedBy');
                 let linksOfType = links[type];
@@ -61,19 +67,19 @@ export class JournalLink {
             }
         };
 
-        game[game.JournalLink.entityMap[entityType]].get(data._id).setFlag('journal-links', 'references', updated);
+        game[this.entityMap[entityType]].get(data._id).setFlag('journal-links', 'references', updated);
     }
 
     includeJournalLinks(sheet, html, data) {
-        game.JournalLink.includeLinks(html, data.entity);
+        this.includeLinks(html, data.entity);
     }
 
     includeActorLinks(sheet, html, data) {
-        game.JournalLink.includeLinks(html, data.actor);
+        this.includeLinks(html, data.actor);
     }
 
     includeItemLinks(sheet, html, data) {
-        game.JournalLink.includeLinks(html, data.entity);
+        this.includeLinks(html, data.entity);
     }
 
     includeLinks(html, entityData) {
@@ -94,8 +100,7 @@ export class JournalLink {
                 continue;
 
             for (let value of values) {
-                // TODO possible bug if it's not attached to game?
-                let entity = game[game.JournalLink.entityMap[type]].get(value);
+                let entity = game[this.entityMap[type]].get(value);
                 let link = $('<a class="entity-link" draggable="true"></a>');
                 link.attr('data-entity', type);
                 link.attr('data-id', entity._id);
@@ -128,7 +133,7 @@ export class JournalLink {
     }
 
     references(text) {
-        return Array.from(text.matchAll(game.JournalLink.re)).map(
+        return Array.from(text.matchAll(this.re)).map(
             m => {
                 return {
                     type: m[1],

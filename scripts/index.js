@@ -16,17 +16,19 @@ Hooks.on("init", () => {
         default: true
     });
 
-    game.JournalLink = new JournalLink();
+    let jl = new JournalLink();
+    game.JournalLink = jl;
+    CONFIG.debug.JournalLink = false;
+
+    // roll tables have no context of this stuff
 
     // things what update
+    Hooks.on('updateJournalEntry', game.JournalLink.updateJournalEntry.bind(jl));
+    Hooks.on('updateActor', game.JournalLink.updateActor.bind(jl));
+    Hooks.on('updateItem', game.JournalLink.updateItem.bind(jl));
 
     // things what render
-    Hooks.on('renderJournalSheet', game.JournalLink.includeJournalLinks);
-    Hooks.on('renderActorSheet', game.JournalLink.includeActorLinks);
-    Hooks.on('renderItemSheet', game.JournalLink.includeItemLinks);
+    Hooks.on('renderJournalSheet', game.JournalLink.includeJournalLinks.bind(jl));
+    Hooks.on('renderActorSheet', game.JournalLink.includeActorLinks.bind(jl));
+    Hooks.on('renderItemSheet', game.JournalLink.includeItemLinks.bind(jl));
 });
-
-Hooks.on('updateJournalEntry', (args) => game.JournalLink && game.JournalLink.updateJournalEntry(args));
-// updateItem
-// updateActor
-// roll tables have no context of this stuff
