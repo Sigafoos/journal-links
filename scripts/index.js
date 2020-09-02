@@ -1,19 +1,27 @@
 import { JournalLink } from './journallink.js';
 //import { JournalLinkSettings } from './settings.js';
 
-const MODULE_NAME = 'journal-link';
-const NAME = 'Journal Link';
-const SETTINGS_NAME = 'journalLinkSettings';
+const MODULE_NAME = 'journal-links';
+const NAME = 'Journal Links';
 
 Hooks.on("init", () => {
-    console.log('journal-link | initializing');
+    console.log('journal-links | initializing');
     let modulename = MODULE_NAME;
-    game.settings.register(MODULE_NAME, 'test-setting', {
+    game.settings.register(MODULE_NAME, 'rebuildOnSave', {
         name : 'Rebuild links on journal save',
+        hint: 'If unchecked, linking only happens on manual sync. As there is currently no way to manually sync, effectively disables linking.',
         scope: 'world',
         config: true,
         type: Boolean,
         default: true
+    });
+    game.settings.register(MODULE_NAME, 'headingTag', {
+        name : 'Heading tag for links',
+        hint: 'For <h1>Links</h1>, enter h1. Do not add classes, etc.',
+        scope: 'world',
+        config: true,
+        type: String,
+        default: 'h1'
     });
 
     let jl = new JournalLink();

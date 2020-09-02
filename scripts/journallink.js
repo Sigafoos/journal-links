@@ -22,6 +22,10 @@ export class JournalLink {
 
     // TODO is the lack of async/await here going to bite me?
     update(data, entityType, content) {
+        if (!game.settings.get('journal-links', 'rebuildOnSave')) {
+            console.log('journal-links | not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
+            return;
+        }
         console.log('journal-links | updating ' + entityType + ' ' + data.name);
 
         let references = this.references(content);
@@ -93,7 +97,9 @@ export class JournalLink {
             return;
 
         let linksDiv = $('<div class="journal-links"></div>');
-        linksDiv.append($('<h1>Linked from</h1>'));
+        let heading = document.createElement(game.settings.get('journal-links', 'headingTag'));
+        heading.append('Linked from');
+        linksDiv.append(heading);
         let linksList = $('<ul></ul>');
         for (const [type, values] of Object.entries(links)) {
             if (values.length === 0)
