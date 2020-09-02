@@ -8,6 +8,11 @@ export class JournalLink {
         'RollTable': 'tables'
     };
 
+    elementSelectors = [
+        '.editor-content',
+        '.editor-content[data-edit="data.details.biography.value"]'
+    ];
+
     updateJournalEntry({ data }) {
         this.update(data, 'JournalEntry', data.content);
     }
@@ -107,12 +112,9 @@ export class JournalLink {
             return;
 
         this.log('appending links to ' + entityData.name);
-        let element = html.find('.editor-content[data-edit="data.details.biography.value"]');
+        let element = this.getElementToModify(html);
         if (element.length === 0)
             return;
-
-        if (element.length != 1)
-            console.log(element)
 
         let linksDiv = $('<div class="journal-links"></div>');
         let heading = document.createElement(game.settings.get('journal-links', 'headingTag'));
@@ -166,6 +168,18 @@ export class JournalLink {
                 }
             }
         );
+    }
+
+    getElementToModify(html) {
+        for (let selector of this.elementSelectors) {
+            let element = html.find(selector);
+
+            if (element.length === 1)
+                return element;
+        }
+
+        this.log('ERROR | unable to find element to modify');
+        return undefined;
     }
 
     log(text) {
