@@ -2,7 +2,7 @@
   "name": "journal-links",
   "title": "Journal Links",
   "description": "See relationships between journal entries",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "dconley",
   "esmodules": ["./scripts/index.js"],
   "scripts": [],

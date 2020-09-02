@@ -54,7 +54,8 @@ export class JournalLink {
                 continue;
             }
 
-            let referenced = game[this.entityMap[reference.type]].get(reference.id);
+            let mappedEntity = this.entityMap[reference.type];
+            let referenced = mappedEntity && game[mappedEntity] && game[mappedEntity].get(reference.id);
             if (!referenced) {
                 this.debug('no referenced entity ' + reference.type + ' ' + reference.id + '; skipping');
                 continue;
@@ -63,6 +64,10 @@ export class JournalLink {
             this.debug('adding to referencedBy in ' + reference.type + ' ' + referenced.name);
             let links = referenced.getFlag('journal-links', 'referencedBy') || {};
             let linksOfType = links[entityType] || [];
+            if (linksOfType.includes(data._id)) {
+                this.debug(entityType + ' ' + data._id + ' already exists, skipping');
+                continue;
+            }
             linksOfType.push(data._id);
 
             links[entityType] = linksOfType;
