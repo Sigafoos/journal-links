@@ -23,10 +23,17 @@ Hooks.on("init", () => {
         type: String,
         default: 'h1'
     });
+    game.settings.register(MODULE_NAME, 'debug', {
+        name : 'Debug logging',
+        scope: 'world',
+        config: 'client',
+        type: Boolean,
+        default: false
+    });
 
     let jl = new JournalLink();
     game.JournalLink = jl;
-    CONFIG.debug.JournalLink = false;
+    CONFIG.debug.JournalLinks = game.settings.get(MODULE_NAME, 'debug');
 
     // roll tables have no context of this stuff
 

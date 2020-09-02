@@ -23,10 +23,10 @@ export class JournalLink {
     // TODO is the lack of async/await here going to bite me?
     update(data, entityType, content) {
         if (!game.settings.get('journal-links', 'rebuildOnSave')) {
-            console.log('journal-links | not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
+            this.log('not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
             return;
         }
-        console.log('journal-links | updating ' + entityType + ' ' + data.name);
+        this.log('updating ' + entityType + ' ' + data.name);
 
         let references = this.references(content);
         let existing = (data.flags['journal-links'] && data.flags['journal-links']['references']) || {};
@@ -37,15 +37,25 @@ export class JournalLink {
             if (!updated[reference.type])
                 updated[reference.type] = [];
             // if we've linked something multiple times in this entity
-            if (updated[reference.type].includes(reference.id))
-                continue
+            if (updated[reference.type].includes(reference.id)) {
+                this.debug(reference.type + ' ' + reference.id + ' is already updated, skipping');
+                continue;
+            }
             updated[reference.type].push(reference.id);
 
             let existingOfType = existing[reference.type] || [];
-            if (existingOfType.includes(reference.id))
+            if (existingOfType.includes(reference.id)) {
+                this.debug(reference.type + ' ' + reference.id + ' already exists, skipping');
                 continue;
+            }
 
             let referenced = game[this.entityMap[reference.type]].get(reference.id);
+            if (!referenced) {
+                this.debug('no referenced entity ' + reference.type + ' ' + reference.id + '; skipping');
+                continue;
+            }
+
+            this.debug('adding to referencedBy in ' + reference.type + ' ' + referenced.name);
             let links = referenced.getFlag('journal-links', 'referencedBy') || {};
             let linksOfType = links[entityType] || [];
             linksOfType.push(data._id);
@@ -58,10 +68,15 @@ export class JournalLink {
             let current = updated[type];
             for (let outdated of values.filter(v => !current.includes(v))) {
                 let entity = game[this.entityMap[type]].get(outdated);
+                if (!entity) {
+                    this.debug('outdated entity ' + type + ' ' + outdated + ' does not exist');
+                } else {
+                    this.debug('removing outdated entity ' + type + ' ' + entity.name);
 
-                let links = entity.getFlag('journal-links', 'referencedBy');
-                let linksOfType = links[type];
-                linksOfType.splice(linksOfType.indexOf(data._id), 1);
+                    let links = entity.getFlag('journal-links', 'referencedBy');
+                    let linksOfType = links[type];
+                    linksOfType.splice(linksOfType.indexOf(data._id), 1);
+                }
 
                 if (linksOfType.length)
                     links[type] = linksOfType;
@@ -91,10 +106,13 @@ export class JournalLink {
         if (Object.keys(links).length === 0)
             return;
 
-        console.log('journal-links | appending links to ' + entityData.name);
-        let element = html.find(".editor-content");
+        this.log('appending links to ' + entityData.name);
+        let element = html.find('.editor-content[data-edit="data.details.biography.value"]');
         if (element.length === 0)
             return;
+
+        if (element.length != 1)
+            console.log(element)
 
         let linksDiv = $('<div class="journal-links"></div>');
         let heading = document.createElement(game.settings.get('journal-links', 'headingTag'));
@@ -107,6 +125,7 @@ export class JournalLink {
 
             for (let value of values) {
                 let entity = game[this.entityMap[type]].get(value);
+                this.debug('adding link from ' + type + ' ' + entity.name);
                 let link = $('<a class="entity-link" draggable="true"></a>');
                 link.attr('data-entity', type);
                 link.attr('data-id', entity._id);
@@ -147,5 +166,14 @@ export class JournalLink {
                 }
             }
         );
+    }
+
+    log(text) {
+        console.log('journal-links | ' + text);
+    }
+
+    debug(text) {
+        if (CONFIG.debug.JournalLinks)
+            this.log('DEBUG | ' + text);
     }
 }
