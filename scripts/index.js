@@ -17,12 +17,16 @@ Hooks.on("init", () => {
     });
 
     game.JournalLink = new JournalLink();
+
+    // things what update
+
+    // things what render
+    Hooks.on('renderJournalSheet', game.JournalLink.includeJournalLinks);
+    Hooks.on('renderActorSheet', game.JournalLink.includeActorLinks);
+    Hooks.on('renderItemSheet', game.JournalLink.includeItemLinks);
 });
 
 Hooks.on('updateJournalEntry', (args) => game.JournalLink && game.JournalLink.updateJournalEntry(args));
-Hooks.on('renderJournalSheet', (sheet, html, data) => game.JournalLink && game.JournalLink.includeLinks(sheet, html, data));
 // updateItem
 // updateActor
 // roll tables have no context of this stuff
-// renderActorSheet (is that generic enough?)
-// renderItemSheet
