@@ -50,7 +50,7 @@ export class JournalLink {
 
             let existingOfType = existing[reference.type] || [];
             if (existingOfType.includes(reference.id)) {
-                this.debug(reference.type + ' ' + reference.id + ' already exists, skipping');
+                this.debug(reference.type + ' ' + reference.id + ' is already referenced, skipping');
                 continue;
             }
 
@@ -162,6 +162,22 @@ export class JournalLink {
         }
         linksDiv.append(linksList);
         element.append(linksDiv);
+    }
+
+    // clears and recreates references
+    sync() {
+        this.log('syncing links...');
+        let keys = Object.values(this.entityMap);
+
+        for (let key of keys) {
+            this.log('wiping referencedBy for ' + key);
+            Array.from(game[key]).forEach(async e => await e.unsetFlag('journal-links', 'referencedBy'))
+        }
+
+        for (let key of keys) {
+            this.log('wiping references for ' + key);
+            Array.from(game[key]).forEach(async e => await e.unsetFlag('journal-links', 'references'))
+        }
     }
 
     references(text) {

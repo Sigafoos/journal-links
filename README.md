@@ -16,7 +16,5 @@ Add the manifest to your Foundry modules: https://raw.githubusercontent.com/Siga
 
 ## Settings
 * **Rebuild on save**: if disabled, won't automatically generate links between entities (default: enabled)
-* **Heading tag**: By default it uses `<h1>` tags for the section. If you'd like to change it to `<h2>`, etc, you can (note: this doesn't support custom classes yet)
-
-## Bugs?
-This is very alpha, and doesn't work with at least one other journal plugin. I'll do my best to address any issues that are filed.
+* **Heading tag**: by default it uses `<h1>` tags for the section. If you'd like to change it to `<h2>`, etc, you can (note: this doesn't support custom classes, attributes, etc)
+* **Debug**: will print more detailed information about the linking process in the developer console (default: disabled)
