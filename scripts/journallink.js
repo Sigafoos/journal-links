@@ -14,23 +14,31 @@ export class JournalLink {
     ];
 
     updateJournalEntry({ data }) {
+        if (!game.settings.get('journal-links', 'rebuildOnSave')) {
+            this.log('not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
+            return;
+        }
         this.update(data, 'JournalEntry', data.content);
     }
 
     updateActor({ data }) {
+        if (!game.settings.get('journal-links', 'rebuildOnSave')) {
+            this.log('not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
+            return;
+        }
         this.update(data, 'Actor', data.data.details.biography.value);
     }
 
     updateItem({ data }) {
+        if (!game.settings.get('journal-links', 'rebuildOnSave')) {
+            this.log('not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
+            return;
+        }
         this.update(data, 'Item', data.data.description.value);
     }
 
     // TODO is the lack of async/await here going to bite me?
     update(data, entityType, content) {
-        if (!game.settings.get('journal-links', 'rebuildOnSave')) {
-            this.log('not updating ' + entityType + ' ' + data.name + ' as rebuildOnSave is false');
-            return;
-        }
         this.log('updating ' + entityType + ' ' + data.name);
 
         let references = this.references(content);

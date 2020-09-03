@@ -1,5 +1,8 @@
 import { JournalLink } from './journallink.js';
-//import { JournalLinkSettings } from './settings.js';
+import { Sync } from './sync.js';
+
+// bump this to cause a sync on page load (one time)
+const SYNC_VERSION = 1;
 
 const MODULE_NAME = 'journal-links';
 const NAME = 'Journal Links';
@@ -25,17 +28,30 @@ Hooks.on("init", () => {
     });
     game.settings.register(MODULE_NAME, 'debug', {
         name : 'Debug logging',
-        scope: 'world',
-        config: 'client',
+        scope: 'client',
+        config: true,
         type: Boolean,
         default: false
+    });
+    game.settings.register(MODULE_NAME, 'lastSyncedVersion', {
+        name : 'Last synced version',
+        hint: 'If we perform a bugfix that would benefit from resyncing, SYNC_VERSION will be out of -- forgive me -- sync, indicating we should perform a sync',
+        scope: 'world',
+        config: false,
+        type: Number,
+        default: 0
+    });
+    game.settings.registerMenu(MODULE_NAME, 'syncButton', {
+        name: 'Sync entries',
+        label: 'Sync now',
+        icon: 'fas fa-sync-alt',
+        type: Sync,
+        restricted: true
     });
 
     let jl = new JournalLink();
     game.JournalLink = jl;
     CONFIG.debug.JournalLinks = game.settings.get(MODULE_NAME, 'debug');
-
-    // roll tables have no context of this stuff
 
     // things what update
     Hooks.on('updateJournalEntry', game.JournalLink.updateJournalEntry.bind(jl));
@@ -46,4 +62,13 @@ Hooks.on("init", () => {
     Hooks.on('renderJournalSheet', game.JournalLink.includeJournalLinks.bind(jl));
     Hooks.on('renderActorSheet', game.JournalLink.includeActorLinks.bind(jl));
     Hooks.on('renderItemSheet', game.JournalLink.includeItemLinks.bind(jl));
+
+    // initial sync
+    Hooks.on('ready', () => {
+        if (game.settings.get(MODULE_NAME, 'lastSyncedVersion') < SYNC_VERSION) {
+            console.log('journal-links | performing sync...');
+            game.JournalLink.sync();
+            game.settings.set(MODULE_NAME, 'lastSyncedVersion', SYNC_VERSION);
+        }
+    });
 });
