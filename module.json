@@ -2,7 +2,7 @@
   "name": "journal-links",
   "title": "Journal Links",
   "description": "Include links to entities that reference the viewed journal, actor, item, etc.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "dconley",
   "esmodules": ["./scripts/index.js"],
   "scripts": [],
