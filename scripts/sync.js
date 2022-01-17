@@ -8,8 +8,7 @@ export class Sync extends FormApplication {
             ui.notifications.warn('JournalLink object not found; cannot sync')
         } else {
             ui.notifications.info('Syncing journal links');
-            game.JournalLink.sync();
-            ui.notifications.info('Journal link sync completed');
+            game.JournalLink.sync().then((x) => { ui.notifications.info('Journal link sync completed'); });
         }
 
         // there shouldn't be anything to close, but just in case!

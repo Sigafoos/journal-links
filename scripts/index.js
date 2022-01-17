@@ -54,9 +54,9 @@ Hooks.on("init", () => {
     CONFIG.debug.JournalLinks = game.settings.get(MODULE_NAME, 'debug');
 
     // things what update
-    Hooks.on('updateJournalEntry', game.JournalLink.updateJournalEntry.bind(jl));
-    Hooks.on('updateActor', game.JournalLink.updateActor.bind(jl));
-    Hooks.on('updateItem', game.JournalLink.updateItem.bind(jl));
+    Hooks.on('preUpdateJournalEntry', game.JournalLink.updateJournalEntry.bind(jl));
+    Hooks.on('preUpdateActor', game.JournalLink.updateActor.bind(jl));
+    Hooks.on('preUpdateItem', game.JournalLink.updateItem.bind(jl));
 
     // things what render
     Hooks.on('renderJournalSheet', game.JournalLink.includeJournalLinks.bind(jl));
